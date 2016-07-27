@@ -167,7 +167,9 @@ module Sensu
       if @event['occurrences'] < occurrences
         bail 'not enough occurrences'
       end
-      if @event['occurrences'] > occurrences && @event['action'] == 'create'
+
+      # If using a cron expression instead of interval, do not honor refresh
+      if !@event['check']['cron'] && @event['occurrences'] > occurrences && @event['action'] == 'create'
         number = refresh.fdiv(interval).to_i
         unless number == 0 || (@event['occurrences'] - occurrences) % number == 0
           bail 'only handling every ' + number.to_s + ' occurrences'
